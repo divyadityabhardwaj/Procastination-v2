@@ -195,7 +195,7 @@ export default function Dashboard() {
       >
         {loading ? (
           <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
-            <CircularProgress color="primary" sx={{ mt: 8 }}/>
+            <CircularProgress color="primary" sx={{ mt: 8 }} />
             <Typography variant="h6" color="text.secondary">
               Wait, your data is loading...
             </Typography>
@@ -219,9 +219,9 @@ export default function Dashboard() {
               <motion.div
                 key={session.id}
                 layout
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                // initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1.1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                // exit={{ opacity: 0, scale: 0.95, y: -20 }}
                 transition={{ duration: 0.25, type: "spring", stiffness: 120 }}
                 style={{ width: "100%" }}
               >
@@ -286,9 +286,40 @@ export default function Dashboard() {
           </AnimatePresence>
         )}
       </Box>
-      <Dialog open={createOpen} onClose={() => setCreateOpen(false)}>
-        <DialogTitle>Create New Session</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        PaperProps={{
+          sx: {
+            background: "rgba(18, 18, 18, 0.98)",
+            borderRadius: 4,
+            boxShadow: 12,
+            p: 2,
+            minWidth: { xs: "90vw", sm: 400 },
+            fontFamily: "'Montserrat', sans-serif",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontWeight: 500,
+            fontFamily: "'Montserrat', sans-serif",
+            color: "primary.main",
+            fontSize: "1rem",
+            pb: 0,
+            letterSpacing: 1,
+            background: "transparent",
+          }}
+        >
+          Create New Session
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            mt: 1,
+            background: "transparent",
+            fontFamily: "'Montserrat', sans-serif",
+          }}
+        >
           <TextField
             autoFocus
             margin="dense"
@@ -299,18 +330,81 @@ export default function Dashboard() {
             disabled={creating}
             error={!!createError}
             helperText={createError}
+            variant="standard"
+            sx={{
+              color: "#1976d2",
+              fontWeight: 500,
+              fontFamily: "'Montserrat', sans-serif",
+              letterSpacing: 1,
+              "& .MuiInput-underline:before, & .MuiInput-underline:after": {
+                borderBottom: "2px solid #1976d2",
+              },
+
+              fontSize: "1.1rem",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+                fontWeight: 600,
+                fontFamily: "'Montserrat', sans-serif",
+                letterSpacing: 1,
+              },
+              mb: 1,
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCreateOpen(false)} disabled={creating}>
+        <DialogActions
+          sx={{
+            px: 3,
+            pb: 2,
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 2,
+            background: "transparent",
+          }}
+        >
+          <Button
+            onClick={() => setCreateOpen(false)}
+            disabled={creating}
+            sx={{
+              fontFamily: "'Montserrat', sans-serif",
+              color: "text.secondary",
+              fontWeight: 600,
+              borderRadius: 2,
+              px: 2.5,
+              py: 1,
+              background: "rgba(25, 118, 210, 0.07)",
+              "&:hover": {
+                background: "rgba(25, 118, 210, 0.15)",
+              },
+            }}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleCreateSession}
             variant="contained"
             disabled={creating}
+            sx={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: 700,
+              borderRadius: 2,
+              px: 3,
+              py: 1.2,
+              maxHeight: 40,
+              background: "linear-gradient(90deg,rgb(0, 116, 232) 60%,rgb(0, 117, 212) 100%)",
+              color: "#fff",
+              boxShadow: 3,
+              textTransform: "none",
+              fontSize: "1.05rem",
+              "&:hover": {
+                background: "linear-gradient(90deg,rgb(57, 120, 168) 100%)",
+              },
+            }}
           >
-            {creating ? <CircularProgress size={24} /> : "Create"}
+            {creating ? (
+              <CircularProgress size={24} sx={{ color: "#fff" }} />
+            ) : (
+              "Create"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
