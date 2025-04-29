@@ -17,11 +17,7 @@ export default async function handler(
       password,
     });
 
-    console.log("data", data);
-    console.log("error", JSON.stringify(error));
-
     if (error) {
-        console.log("sindie if " , error.message)
       return res.status(400).json({
         error: error.message,
       });

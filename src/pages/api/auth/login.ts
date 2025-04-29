@@ -25,7 +25,6 @@ export default async function handler(
       user: data.user,
     });
   } catch (error: any) {
-    console.log("LOGIN CATCH", JSON.stringify(error));
     return res.status(400).json({
       error: error.message,
     });

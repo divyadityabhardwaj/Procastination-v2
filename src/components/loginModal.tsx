@@ -56,6 +56,11 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
         return;
       }
 
+      if (!data.error) {
+        localStorage.setItem("token", JSON.stringify(data));
+        window.dispatchEvent(new Event("authChanged")); 
+      }
+
       router.push("/dashboard");
 
       onClose();
@@ -63,7 +68,6 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
       setError(err.message);
     }
   };
-
 
   return (
     <Modal
