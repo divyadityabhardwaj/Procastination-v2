@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/router";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Container,
@@ -21,6 +20,8 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 interface Session {
   id: string;
@@ -113,6 +114,10 @@ export default function Dashboard() {
         return aMatch - bMatch;
       });
   }, [sessions, search]);
+
+  const handleSessionClick = (sessionId: string) => {
+    router.push(`/dashboard/${sessionId}`);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -245,9 +250,7 @@ export default function Dashboard() {
                       transform: "translateY(-4px)",
                     },
                   }}
-                  onClick={() => {
-                    // handle card click if needed
-                  }}
+                  onClick={() => handleSessionClick(session.id)}
                 >
                   <CardContent
                     sx={{
@@ -255,28 +258,13 @@ export default function Dashboard() {
                       height: "100%",
                       display: "flex",
                       flexDirection: "column",
+                      alignItems: "center",
                       justifyContent: "center",
-                      borderRadius: 3,
-                      px: 3,
-                      py: 2,
+                      textAlign: "center",
+                      gap: 2,
                     }}
                   >
-                    <Typography
-                      variant="h6"
-                      fontWeight={700}
-                      fontFamily="'Montserrat', sans-serif"
-                      color="primary"
-                      gutterBottom
-                      sx={{
-                        mb: 0.5,
-                        wordBreak: "break-word",
-                        textOverflow: "ellipsis",
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                      }}
-                    >
+                    <Typography variant="h6" component="div">
                       {session.name}
                     </Typography>
                   </CardContent>
@@ -390,7 +378,8 @@ export default function Dashboard() {
               px: 3,
               py: 1.2,
               maxHeight: 40,
-              background: "linear-gradient(90deg,rgb(0, 116, 232) 60%,rgb(0, 117, 212) 100%)",
+              background:
+                "linear-gradient(90deg,rgb(0, 116, 232) 60%,rgb(0, 117, 212) 100%)",
               color: "#fff",
               boxShadow: 3,
               textTransform: "none",
