@@ -44,13 +44,14 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="static" color="primary" elevation={2}>
-      <Toolbar>
+    <AppBar position="static" color="primary" elevation={2} sx={{ height: 35 }}>
+      <Toolbar sx={{ minHeight: "auto" }}>
         <Box
           sx={{
             flexGrow: 1,
             display: "flex",
             alignItems: "center",
+            mb: 4,
             minWidth: 0,
           }}
         >
@@ -71,10 +72,9 @@ const Header = () => {
             }}
             onClick={() => {
               router.push("/");
-              // window.location.reload();
             }}
           >
-            <AccessTimeIcon fontSize="medium" sx={{ mb: "2px" }} />
+            <AccessTimeIcon sx={{ fontSize: 18 }} />
             <Typography
               variant="h6"
               noWrap
@@ -87,7 +87,7 @@ const Header = () => {
                 userSelect: "none",
               }}
             >
-              Procastination App
+              Procastination
             </Typography>
           </Stack>
         </Box>
@@ -97,8 +97,10 @@ const Header = () => {
           startIcon={<ContactMailIcon />}
           onClick={() => router.push("/contact")}
           sx={{
-            mx: 1,
-            borderRadius: 3,
+            height: "24px",
+            mx: 0.5,
+            mb: 4,
+            borderRadius: 2,
             fontWeight: 600,
             letterSpacing: 1,
             fontSize: "1rem",
@@ -111,7 +113,7 @@ const Header = () => {
             },
           }}
         >
-          Contact Us
+          Contact
         </Button>
         {!isAuth ? (
           <Button
@@ -120,12 +122,15 @@ const Header = () => {
             endIcon={<LoginIcon />}
             onClick={handleLogin}
             sx={{
-              mx: 1,
-              borderRadius: 3,
+              mx: 0.5,
+              mb: 4,
+              borderRadius: 2,
               fontWeight: 600,
               letterSpacing: 1,
-              fontSize: "1rem",
-              boxShadow: "0 2px 8px rgba(46,125,50,0.15)",
+              fontSize: "0.8rem",
+              px: 1,
+              height: "24px",
+              boxShadow: "0 2px 4px rgba(46,125,50,0.15)",
               transition: "all 0.2s",
               "&:hover": {
                 background: "#fff",
@@ -143,12 +148,15 @@ const Header = () => {
             endIcon={<LogoutIcon />}
             onClick={handleLogout}
             sx={{
-              mx: 1,
-              borderRadius: 3,
+              mx: 0.5,
+              mb: 4,
+              borderRadius: 2,
               fontWeight: 600,
               letterSpacing: 1,
-              fontSize: "1rem",
-              boxShadow: "0 2px 8px rgba(233,30,99,0.15)",
+              fontSize: "0.8rem",
+              px: 1,
+              height: "24px",
+              boxShadow: "0 2px 4px rgba(233,30,99,0.15)",
               transition: "all 0.2s",
               "&:hover": {
                 background: "#fff",
