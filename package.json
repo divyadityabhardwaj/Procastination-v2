@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@google/genai": "^0.14.1",
     "@mui/icons-material": "^7.0.1",
     "@mui/material": "^7.0.1",
     "@supabase/supabase-js": "^2.49.4",
@@ -21,8 +22,10 @@
     "next": "15.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.5.2",
     "react-quill": "^2.0.0",
-    "react-resizable": "^3.0.5"
+    "react-resizable": "^3.0.5",
+    "react-syntax-highlighter": "^15.6.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -31,6 +34,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-resizable": "^3.0.8",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
