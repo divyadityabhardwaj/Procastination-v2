@@ -11,8 +11,10 @@ import {
   ListItemText,
   Paper,
   styled,
+  Button,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import DescriptionIcon from "@mui/icons-material/Description";
 import { Toast } from "./Toast";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import tomorrow from "react-syntax-highlighter/dist/esm/styles/hljs/tomorrow";
@@ -36,6 +38,8 @@ interface Message {
 }
 
 export const AIChat = ({ video }: { video: any }) => {
+  const urlObj = new URL(video.youtube_url);
+  const videoId = urlObj.searchParams.get("v");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,6 +48,50 @@ export const AIChat = ({ video }: { video: any }) => {
 
   const handleCloseToast = () => {
     setShowToast(false);
+  };
+
+  const fetchVideoSummary = async () => {
+    try {
+      setLoading(true);
+
+      // Add the summary request to messages
+      const userMessage: Message = {
+        content: "Please tell me the video summary",
+        role: "user",
+        createdAt: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, userMessage]);
+
+      const response = await fetch(`/api/gemini/getVideoSummary`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ videoId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get video summary");
+      }
+
+      const data = await response.json();
+
+      // Add the summary response to messages
+      const aiMessage: Message = {
+        content: data.response,
+        role: "model",
+        createdAt: new Date().toISOString(),
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error: any) {
+      console.error("Error fetching video summary:", error);
+      setToastMessage(error.message || "Failed to get video summary");
+      setShowToast(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to parse content with markdown-like formatting
@@ -217,6 +265,18 @@ export const AIChat = ({ video }: { video: any }) => {
         message={toastMessage}
         onClose={handleCloseToast}
       />
+
+      <Box sx={{ mb: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<DescriptionIcon />}
+          onClick={fetchVideoSummary}
+          disabled={loading || !videoId}
+          sx={{ mb: 2 }}
+        >
+          Get Video Summary
+        </Button>
+      </Box>
 
       <Box>
         <Typography variant="body2" color="text.secondary" mb={2}>
