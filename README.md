@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Procastination V2
 
-## Getting Started
+A modern web application designed to help users overcome procrastination by providing AI-powered productivity tools and resources.
 
-First, run the development server:
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Now-brightgreen)](https://procastination-v2.netlify.app/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **AI-Powered Chat**: Get personalized productivity advice and motivation
+- **Video Summarization**: Extract key points from educational videos
+- **Note-taking**: Built-in notepad for capturing thoughts and ideas
+- **Task Management**: Organize and track your tasks
+- **User Authentication**: Secure signup and login functionality
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Next.js 15, React 18, TypeScript
+- **UI Components**: Material-UI (MUI)
+- **Styling**: Tailwind CSS, Emotion
+- **Backend**: Next.js API Routes
+- **Database**: Supabase
+- **AI**: Google Gemini API
+- **Deployment**: Netlify
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js 18+ and npm/pnpm
+- Supabase account
+- Google Gemini API key
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation
 
-## Deploy on Vercel
+1. Clone the repository
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   git clone https://github.com/divyadityabhardwaj/Procastination-v2.git
+   cd Procastination-v2
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Install dependencies
+
+   ```bash
+   pnpm install
+   ```
+
+3. Set up environment variables
+   Create a `.env` file in the root directory and add:
+
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   GOOGLE_AI_KEY=your_google_gemini_api_key
+   ```
+
+4. Run the development server
+
+   ```bash
+   pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🌟 Live Demo
+
+Check out the live demo: [Procastination V2](https://procastination-v2.netlify.app/)
