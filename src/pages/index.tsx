@@ -20,8 +20,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-// import Particles, { initParticlesEngine } from "@tsparticles/react";
-// import { loadSlim } from "@tsparticles/slim";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import { useTheme } from "@mui/material/styles";
 
@@ -36,15 +36,15 @@ const sectionGradient = (from: string, to: string) => ({
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [particlesInit, setParticlesInit] = useState(false);
+  const [particlesInit, setParticlesInit] = useState(false);
 
-  // useEffect(() => {
-  //   initParticlesEngine(async (engine) => {
-  //     await loadSlim(engine);
-  //   }).then(() => {
-  //     setParticlesInit(true);
-  //   });
-  // }, []);
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => {
+      setParticlesInit(true);
+    });
+  }, []);
 
   const heroBoxRef = useRef<HTMLDivElement>(null);
 
@@ -113,8 +113,8 @@ export default function Home() {
             zIndex: 1,
           }}
         >
-          {/* Interactive Particles Background - Temporarily disabled */}
-          {/* {particlesInit && (
+          {/* Interactive Particles Background */}
+          {particlesInit && (
             <Box
               sx={{
                 position: "absolute",
@@ -182,7 +182,7 @@ export default function Home() {
                 }}
               />
             </Box>
-          )} */}
+          )}
           <motion.div
             variants={fadeInUp}
             initial="hidden"

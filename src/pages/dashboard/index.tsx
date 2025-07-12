@@ -274,11 +274,11 @@ export default function Dashboard() {
                     position: "relative",
                     overflow: "hidden",
                     cursor: "pointer",
-                    transition: "box-shadow 0.2s, transform 0.2s",
+                    transition: "all 0.3s ease-in-out",
                     ...getCardPattern(idx),
                     "&:hover": {
-                      boxShadow: 8,
-                      transform: "translateY(-4px)",
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
                     },
                   }}
                   onClick={() => handleSessionClick(session.id)}
