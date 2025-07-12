@@ -57,16 +57,33 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
       }
 
       if (!data.error) {
-        localStorage.setItem("token", JSON.stringify(data));
-        window.dispatchEvent(new Event("authChanged")); 
+        if (data.session && data.session.access_token) {
+          localStorage.setItem("access_token", data.session.access_token);
+          // Dispatch event after token is stored
+          window.dispatchEvent(new Event("authChanged"));
+        }
       }
 
-      router.push("/dashboard");
+      // Add a small delay to ensure the auth state is updated
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 100);
 
       onClose();
     } catch (err: any) {
       setError(err.message);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    setIsLogin(true); // Reset to login state
+    setEmail("");
+    setPassword("");
+    setError("");
+    handleClose();
+    router.push("/");
+    window.location.reload();
   };
 
   return (
@@ -89,14 +106,24 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           left: "50%",
           transform: "translate(-50%, -50%)",
           width: { xs: "90%", sm: 400, md: 500, lg: 600 },
-          bgcolor: "rgba(66, 66, 66, 0.95)",
+          bgcolor: "rgba(40, 40, 40, 0.85)",
           color: "white",
-          borderRadius: 2,
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+          borderRadius: 3,
+          boxShadow: "0 8px 32px 0 rgba(0,0,0,0.35)",
           p: 4,
-          border: "1px solid",
-          borderColor: "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(10px)",
+          border: "1.5px solid rgba(255, 255, 255, 0.15)",
+          backdropFilter: "blur(16px)",
+          overflow: "hidden",
+          "&:before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            borderRadius: 3,
+            zIndex: 0,
+            background:
+              "linear-gradient(120deg, rgba(255,213,79,0.08) 0%, rgba(144,202,249,0.08) 100%)",
+            pointerEvents: "none",
+          },
         }}
       >
         <IconButton
@@ -105,9 +132,10 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             right: 12,
             top: 12,
             color: "rgba(255, 255, 255, 0.7)",
+            zIndex: 1,
             "&:hover": {
               bgcolor: "rgba(255, 255, 255, 0.1)",
-              color: "white",
+              color: "#ffd54f",
             },
           }}
           onClick={handleClose}
@@ -117,12 +145,14 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
         <Typography
           id="auth-modal-title"
-          variant="h6"
+          variant="h5"
           gutterBottom
           sx={{
-            color: "white",
-            fontWeight: 500,
+            color: "#ffd54f",
+            fontWeight: 700,
             textAlign: "center",
+            letterSpacing: 1,
+            zIndex: 1,
           }}
         >
           {isLogin ? "Welcome back!" : "Create Account"}
@@ -132,8 +162,10 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           <Alert
             severity="error"
             sx={{
-              backgroundColor: "transparent",
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
               color: red[500],
+              border: "1px solid rgba(255, 87, 34, 0.15)",
+              zIndex: 1,
               "& .MuiAlert-icon": {
                 color: red[500],
               },
@@ -143,7 +175,10 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ position: "relative", zIndex: 1 }}
+        >
           <Stack spacing={3}>
             <TextField
               label="Email"
@@ -154,23 +189,30 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
               fullWidth
               variant="outlined"
               sx={{
+                input: {
+                  color: "#fff",
+                  fontWeight: 500,
+                  letterSpacing: 0.5,
+                },
                 "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  backgroundColor: "rgba(0, 0, 0, 0.2)",
+                  backgroundColor: "rgba(255,255,255,0.06)",
+                  borderRadius: 2,
                   "& fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.2)",
+                    borderColor: "rgba(255, 255, 255, 0.18)",
                   },
                   "&:hover fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.3)",
+                    borderColor: "#ffd54f",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.5)",
+                    borderColor: "#ffd54f",
                   },
                 },
                 "& .MuiInputLabel-root": {
                   color: "rgba(255, 255, 255, 0.7)",
+                  fontWeight: 400,
+                  letterSpacing: 0.5,
                   "&.Mui-focused": {
-                    color: "rgba(255, 255, 255, 0.9)",
+                    color: "#ffd54f",
                   },
                 },
               }}
@@ -184,23 +226,30 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
               fullWidth
               variant="outlined"
               sx={{
+                input: {
+                  color: "#fff",
+                  fontWeight: 500,
+                  letterSpacing: 0.5,
+                },
                 "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  backgroundColor: "rgba(0, 0, 0, 0.2)",
+                  backgroundColor: "rgba(255,255,255,0.06)",
+                  borderRadius: 2,
                   "& fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.2)",
+                    borderColor: "rgba(255, 255, 255, 0.18)",
                   },
                   "&:hover fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.3)",
+                    borderColor: "#ffd54f",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "rgba(255, 255, 255, 0.5)",
+                    borderColor: "#ffd54f",
                   },
                 },
                 "& .MuiInputLabel-root": {
                   color: "rgba(255, 255, 255, 0.7)",
+                  fontWeight: 400,
+                  letterSpacing: 0.5,
                   "&.Mui-focused": {
-                    color: "rgba(255, 255, 255, 0.9)",
+                    color: "#ffd54f",
                   },
                 },
               }}
@@ -211,16 +260,22 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
               fullWidth
               size="large"
               sx={{
-                bgcolor: "rgba(66, 66, 66, 0.95)",
-                color: "white",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                "&:hover": {
-                  bgcolor: "rgba(80, 80, 80, 0.95)",
-                  borderColor: "rgba(255, 255, 255, 0.3)",
-                },
+                bgcolor: "#ffd54f",
+                color: "#232526",
+                fontWeight: 700,
+                borderRadius: 2,
+                boxShadow: 2,
+                border: "none",
                 textTransform: "none",
                 py: 1.5,
                 mt: 2,
+                fontSize: "1.1rem",
+                letterSpacing: 0.5,
+                transition: "all 0.2s",
+                "&:hover": {
+                  bgcolor: "#ffe082",
+                  color: "#232526",
+                },
               }}
             >
               {isLogin ? "Sign In" : "Create Account"}
@@ -230,12 +285,15 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
               variant="text"
               fullWidth
               sx={{
-                color: "rgba(255, 255, 255, 0.7)",
+                color: "#ffd54f",
+                fontWeight: 500,
+                letterSpacing: 0.5,
+                textTransform: "none",
                 "&:hover": {
                   bgcolor: "transparent",
-                  color: "white",
+                  color: "#fff",
+                  textDecoration: "underline",
                 },
-                textTransform: "none",
               }}
             >
               {isLogin

@@ -1,46 +1,129 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Box, Typography } from "@mui/material";
-import { supabase } from "@/lib/supabase";
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 import { Notepad } from "@/components/Notepad";
 import { YouTubePlayer } from "@/components/YoutubePlayer";
 import { VideoSidebar } from "@/components/VideoSidebar";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import {
+  useNotes,
+  useCreateNote,
+  useVideos,
+  useCreateVideo,
+} from "@/hooks/useApi";
+
+interface Note {
+  id: string;
+  content: string;
+  session_id: string;
+  user_id: string;
+  created_at: string;
+  video_id?: string;
+}
+
+interface Video {
+  id: string;
+  youtube_url: string;
+  title: string;
+  note_id: string;
+  created_at: string;
+}
 
 export default function SessionPage() {
   const router = useRouter();
   const { sessionId } = router.query;
-  const [selectedVideo, setSelectedVideo] = useState<any | null>(null);
-  const [videos, setVideos] = useState<any>([]);
-  const [loading, setLoading] = useState(true);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [createNoteOpen, setCreateNoteOpen] = useState(false);
+  const [newNoteContent, setNewNoteContent] = useState("");
 
-  // Fetch videos for the session
+  // React Query hooks
+  const {
+    data: notesData,
+    isLoading: notesLoading,
+    error: notesError,
+  } = useNotes(sessionId as string);
+  const { data: videosData, isLoading: videosLoading } = useVideos(
+    selectedNote?.id || ""
+  );
+  const createNoteMutation = useCreateNote();
+  const createVideoMutation = useCreateVideo();
+
+  const notes = notesData?.notes || [];
+  const videos = videosData?.videos || [];
+
+  // Set first note as selected when notes load
   useEffect(() => {
-    const fetchVideos = async () => {
-      if (!sessionId) return;
+    if (notes.length > 0 && !selectedNote) {
+      setSelectedNote(notes[0]);
+    }
+  }, [notes, selectedNote]);
 
-      try {
-        const { data, error } = await supabase
-          .from("videos")
-          .select("*")
-          .eq("session_id", sessionId)
-          .order("created_at", { ascending: true });
+  // Set first video as selected when videos load
+  useEffect(() => {
+    if (videos.length > 0 && !selectedVideo) {
+      setSelectedVideo(videos[0]);
+    } else if (videos.length === 0) {
+      setSelectedVideo(null);
+    }
+  }, [videos, selectedVideo]);
 
-        if (error) throw error;
-        setVideos(data || []);
-        if (data && data.length > 0) setSelectedVideo(data[0]);
-      } catch (error) {
-        console.error("Error fetching videos:", error);
-      } finally {
-        setLoading(false);
+  const handleCreateNote = async () => {
+    if (!newNoteContent.trim() || !sessionId) return;
+
+    try {
+      const newNote = (await createNoteMutation.mutateAsync({
+        sessionId: sessionId as string,
+        content: newNoteContent,
+      })) as { note: Note };
+      setSelectedNote(newNote.note);
+      setCreateNoteOpen(false);
+      setNewNoteContent("");
+    } catch (error) {
+      console.error("Error creating note:", error);
+    }
+  };
+
+  const handleAddVideo = async (videoUrl: string) => {
+    if (!selectedNote) return;
+
+    try {
+      const result = (await createVideoMutation.mutateAsync({
+        noteId: selectedNote.id,
+        videoUrl,
+      })) as { videos: Video[] };
+
+      if (result.videos && result.videos.length > 0 && !selectedVideo) {
+        setSelectedVideo(result.videos[0]);
       }
-    };
+    } catch (error) {
+      console.error("Error adding video:", error);
+    }
+  };
 
-    fetchVideos();
-  }, [sessionId]);
+  const handleVideoSelect = (video: Video) => {
+    setSelectedVideo(video);
+  };
 
-  if (loading) {
+  if (notesLoading) {
     return (
       <Box
         sx={{
@@ -50,17 +133,37 @@ export default function SessionPage() {
           height: "100vh",
         }}
       >
-        <Typography>Loading videos...</Typography>
+        <Typography>Loading session...</Typography>
+      </Box>
+    );
+  }
+
+  if (notesError) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <Typography color="error">
+          Error loading session: {notesError.message}
+        </Typography>
+        <Button onClick={() => router.back()}>Go Back</Button>
       </Box>
     );
   }
 
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      {/* Video Sidebar */}
+      {/* Notes Sidebar */}
       <Box
         sx={{
-          width: isSidebarOpen ? 250 : 50,
+          width: isSidebarOpen ? 300 : 50,
           transition: "width 0.3s ease-in-out",
           overflow: "hidden",
           borderRight: isSidebarOpen
@@ -97,17 +200,70 @@ export default function SessionPage() {
         </Box>
 
         {isSidebarOpen && (
-          <VideoSidebar
-            videos={videos}
-            onVideoSelect={(video) => setSelectedVideo(video)}
-            onClose={() => setIsSidebarOpen(false)}
-          />
+          <Box sx={{ p: 2, height: "100%", overflow: "auto" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" color="white">
+                Notes
+              </Typography>
+              <IconButton
+                onClick={() => setCreateNoteOpen(true)}
+                sx={{ color: "white" }}
+                disabled={createNoteMutation.isPending}
+              >
+                <AddIcon />
+              </IconButton>
+            </Box>
+
+            {notes.map((note: Note) => (
+              <Card
+                key={note.id}
+                sx={{
+                  mb: 1,
+                  cursor: "pointer",
+                  backgroundColor:
+                    selectedNote?.id === note.id
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(255,255,255,0.05)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                  },
+                }}
+                onClick={() => setSelectedNote(note)}
+              >
+                <CardContent sx={{ p: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="white"
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {note.content.replace(/<[^>]*>/g, "").substring(0, 100)}...
+                  </Typography>
+                  <Typography variant="caption" color="rgba(255,255,255,0.6)">
+                    {new Date(note.created_at).toLocaleDateString()}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
         )}
       </Box>
 
-      {/* Main Content Area - Fixed 50/50 Split */}
+      {/* Main Content Area */}
       <Box sx={{ flex: 1, display: "flex" }}>
-        {/* Notepad - Fixed 50% width */}
+        {/* Notepad - 50% width */}
         <Box
           sx={{
             width: "50%",
@@ -116,10 +272,15 @@ export default function SessionPage() {
             borderRight: "1px solid #ddd",
           }}
         >
-          <Notepad video={selectedVideo} />
+          <Notepad
+            note={selectedNote}
+            onAddVideo={handleAddVideo}
+            onVideoSelect={handleVideoSelect}
+            videos={videos}
+          />
         </Box>
 
-        {/* Video Player - Fixed 50% width */}
+        {/* Video Player - 50% width */}
         <Box
           sx={{
             width: "50%",
@@ -138,13 +299,61 @@ export default function SessionPage() {
                 alignItems: "center",
                 height: "100%",
                 color: "#fff",
+                flexDirection: "column",
+                gap: 2,
               }}
             >
-              <Typography>Select a video to play</Typography>
+              <Typography>No video selected</Typography>
+              {selectedNote && (
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    const url = prompt("Enter YouTube URL:");
+                    if (url) handleAddVideo(url);
+                  }}
+                  disabled={createVideoMutation.isPending}
+                >
+                  {createVideoMutation.isPending
+                    ? "Adding..."
+                    : "Add Video to Note"}
+                </Button>
+              )}
             </Box>
           )}
         </Box>
       </Box>
+
+      {/* Create Note Dialog */}
+      <Dialog open={createNoteOpen} onClose={() => setCreateNoteOpen(false)}>
+        <DialogTitle>Create New Note</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Note content"
+            fullWidth
+            multiline
+            rows={4}
+            value={newNoteContent}
+            onChange={(e) => setNewNoteContent(e.target.value)}
+            disabled={createNoteMutation.isPending}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setCreateNoteOpen(false)}
+            disabled={createNoteMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreateNote}
+            disabled={createNoteMutation.isPending || !newNoteContent.trim()}
+          >
+            {createNoteMutation.isPending ? "Creating..." : "Create"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

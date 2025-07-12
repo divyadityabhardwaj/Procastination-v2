@@ -1,48 +1,47 @@
 import "@/styles/global.css";
 import type { AppProps } from "next/app";
-import Layout from "@/components/Layout";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { getTheme } from "@/lib/theme";
+import dynamic from "next/dynamic";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark",
-    background: {
-      default: "#121212",
-      paper: "rgba(66, 66, 66, 0.95)",
-    },
-    primary: {
-      main: "rgba(255, 255, 255, 0.7)",
-    },
-    text: {
-      primary: "#ffffff",
-      secondary: "rgba(255, 255, 255, 0.7)",
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: "none",
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundImage: "none",
-        },
-      },
+// Dynamically import React Query to avoid TypeScript issues
+const QueryClientProvider = dynamic(
+  () =>
+    import("@tanstack/react-query").then((mod) => ({
+      default: mod.QueryClientProvider,
+    })),
+  { ssr: false }
+);
+
+const ReactQueryDevtools = dynamic(
+  () =>
+    import("@tanstack/react-query-devtools").then((mod) => ({
+      default: mod.ReactQueryDevtools,
+    })),
+  { ssr: false }
+);
+
+// Create a client
+const queryClient = new (require("@tanstack/react-query").QueryClient)({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
     },
   },
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  const theme = getTheme("dark"); // Default to dark theme
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Layout>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <Component {...pageProps} />
-      </Layout>
-    </ThemeProvider>
+      </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }

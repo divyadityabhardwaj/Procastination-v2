@@ -1,17 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function createSession(
+export default async function getNotesByVideo(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST")
+  if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
 
-  const { name } = req.body;
-  
+  const { video_id } = req.query;
   const authHeader = req.headers.authorization;
-  
 
   if (!authHeader)
     return res.status(401).json({ error: "Missing authorization header" });
@@ -27,11 +26,19 @@ export default async function createSession(
   } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: "Invalid user session" });
 
-  const { data, error } = await supabase
-    .from("sessions")
-    .insert({ name, user_id: user.id })
-    .select("*");
+  if (!video_id) {
+    return res.status(400).json({ error: "Missing video_id" });
+  }
 
-  if (error) return res.status(400).json({ error: error.message });
-  return res.status(200).json({ session: data[0] });
+  const { data, error } = await supabase
+    .from("notes")
+    .select("*")
+    .eq("video_id", video_id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  return res.status(200).json({ notes: data });
 }

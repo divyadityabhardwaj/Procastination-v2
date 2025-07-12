@@ -1,17 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function createSession(
+export default async function createNoteInSession(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST")
+  if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
 
-  const { name } = req.body;
-  
+  const { session_id, content } = req.body;
   const authHeader = req.headers.authorization;
-  
 
   if (!authHeader)
     return res.status(401).json({ error: "Missing authorization header" });
@@ -27,11 +26,22 @@ export default async function createSession(
   } = await supabase.auth.getUser();
   if (!user) return res.status(401).json({ error: "Invalid user session" });
 
+  if (!session_id) {
+    return res.status(400).json({ error: "Missing session_id" });
+  }
+
   const { data, error } = await supabase
-    .from("sessions")
-    .insert({ name, user_id: user.id })
+    .from("notes")
+    .insert({
+      session_id,
+      user_id: user.id,
+      content,
+    })
     .select("*");
 
-  if (error) return res.status(400).json({ error: error.message });
-  return res.status(200).json({ session: data[0] });
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  return res.status(200).json({ note: data[0] });
 }

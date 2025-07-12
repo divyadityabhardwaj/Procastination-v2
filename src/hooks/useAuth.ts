@@ -1,27 +1,26 @@
 import { useState, useEffect } from "react";
 
 export function useAuth() {
-  const [auth, setAuth] = useState<any>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const getAuth = () => {
-      const stored = localStorage.getItem("token");
-      setAuth(stored ? JSON.parse(stored) : null);
+    const getToken = () => {
+      const token = localStorage.getItem("access_token");
+      setAccessToken(token || null);
+      setIsLoading(false);
     };
 
-    getAuth();
+    getToken();
 
-    // Listen for storage changes (cross-tab and same-tab)
-    window.addEventListener("storage", getAuth);
-
-    // Listen for manual changes in the same tab (e.g., after login)
-    window.addEventListener("authChanged", getAuth);
+    window.addEventListener("storage", getToken);
+    window.addEventListener("authChanged", getToken);
 
     return () => {
-      window.removeEventListener("storage", getAuth);
-      window.removeEventListener("authChanged", getAuth);
+      window.removeEventListener("storage", getToken);
+      window.removeEventListener("authChanged", getToken);
     };
   }, []);
 
-  return auth;
+  return { accessToken, isLoading };
 }

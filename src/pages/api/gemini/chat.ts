@@ -18,7 +18,7 @@ export default async function handler(
   }
 
   try {
-    const { history, message } = req.body;
+    const { history, message, videoContext } = req.body;
 
     if (!history || !Array.isArray(history)) {
       return res.status(400).json({ error: "History must be an array" });
@@ -26,6 +26,14 @@ export default async function handler(
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message must be a string" });
+    }
+
+    // Build context from video information if available
+    let contextMessage = "";
+    if (videoContext && videoContext.length > 0) {
+      contextMessage = `\n\nContext from videos in this note:\n${videoContext
+        .map((video: any) => `- ${video.title}: ${video.url}`)
+        .join("\n")}\n\n`;
     }
 
     const chat = ai.chats.create({
@@ -37,7 +45,7 @@ export default async function handler(
     });
 
     const response = await chat.sendMessage({
-      message: message,
+      message: contextMessage + message,
     });
 
     return res.status(200).json({

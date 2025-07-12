@@ -1,176 +1,111 @@
+import React, { useState } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
   IconButton,
+  Menu,
+  MenuItem,
+  Avatar,
+  Divider,
+  ListItemIcon,
+  Tooltip,
   Box,
-  Stack,
 } from "@mui/material";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import { useRouter } from "next/router";
-import { useAuth } from "@/hooks/useAuth";
-import ContactMailIcon from "@mui/icons-material/ContactMail";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
-import LoginModal from "./loginModal";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const router = useRouter();
-  const user = useAuth();
-  const [isAuth, setIsAuth] = useState(false);
+  const { accessToken } = useAuth();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const [isAuth, setIsAuth] = useState(!!accessToken);
 
-  useEffect(() => {
-    if (user && user.user?.id) {
-      setIsAuth(true);
-    } else {
-      setIsAuth(false);
-    }
-  }, [user]);
+  React.useEffect(() => {
+    setIsAuth(!!accessToken);
+  }, [accessToken]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleLogin = () => {
-    setIsModalOpen(true);
-    router.push("/");
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleLogin = () => {
+    handleClose();
     router.push("/");
+    window.dispatchEvent(new Event("openLoginModal"));
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    handleClose();
     setIsAuth(false);
-    // window.location.reload();
+    window.dispatchEvent(new Event("authChanged"));
+    router.push("/");
+    window.location.reload();
   };
 
   return (
-    <AppBar position="static" color="primary" elevation={2} sx={{ height: 35 }}>
-      <Toolbar sx={{ minHeight: "auto" }}>
-        <Box
-          sx={{
-            flexGrow: 1,
-            display: "flex",
-            alignItems: "center",
-            mb: 4,
-            minWidth: 0,
-          }}
+    <Box sx={{ position: "fixed", top: 16, right: 24, zIndex: 1300 }}>
+      <Tooltip title="Account & Settings">
+        <IconButton
+          onClick={handleMenu}
+          size="large"
+          sx={{ color: "#ffd54f", bgcolor: "rgba(255,255,255,0.06)", p: 0.5 }}
         >
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-            sx={{
-              cursor: "pointer",
-              transition: "box-shadow 0.2s",
-              "&:hover": {
-                boxShadow: 2,
-                opacity: 0.85,
-              },
-              py: 0.5,
-              px: 1,
-              borderRadius: 2,
-            }}
-            onClick={() => {
-              router.push("/");
-            }}
+          <Avatar
+            sx={{ bgcolor: "#232526", color: "#ffd54f", width: 36, height: 36 }}
           >
-            <AccessTimeIcon sx={{ fontSize: 18 }} />
-            <Typography
-              variant="h6"
-              noWrap
-              sx={{
-                fontWeight: 700,
-                fontFamily: "'Montserrat', sans-serif",
-                letterSpacing: 1,
-                fontSize: { xs: "1.1rem", sm: "1.2rem" },
-                color: "inherit",
-                userSelect: "none",
-              }}
-            >
-              Procastination
-            </Typography>
-          </Stack>
-        </Box>
-        <Button
-          variant="outlined"
-          color="inherit"
-          startIcon={<ContactMailIcon />}
-          onClick={() => router.push("/contact")}
-          sx={{
-            height: "24px",
-            mx: 0.5,
-            mb: 4,
+            <AccountCircleIcon fontSize="medium" />
+          </Avatar>
+        </IconButton>
+      </Tooltip>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        onClick={handleClose}
+        PaperProps={{
+          elevation: 4,
+          sx: {
+            mt: 1.5,
+            minWidth: 220,
+            bgcolor: "rgba(40,40,40,0.98)",
+            color: "#fff",
             borderRadius: 2,
-            fontWeight: 600,
-            letterSpacing: 1,
-            fontSize: "1rem",
-            transition: "all 0.2s",
-            "&:hover": {
-              background: "#fff",
-              color: "#1976d2",
-              borderColor: "#1976d2",
-              boxShadow: "0 2px 8px rgba(25,118,210,0.1)",
-            },
-          }}
-        >
-          Contact
-        </Button>
-        {!isAuth ? (
-          <Button
-            variant="contained"
-            color="success"
-            endIcon={<LoginIcon />}
-            onClick={handleLogin}
-            sx={{
-              mx: 0.5,
-              mb: 4,
-              borderRadius: 2,
-              fontWeight: 600,
-              letterSpacing: 1,
-              fontSize: "0.8rem",
-              px: 1,
-              height: "24px",
-              boxShadow: "0 2px 4px rgba(46,125,50,0.15)",
-              transition: "all 0.2s",
-              "&:hover": {
-                background: "#fff",
-                color: "#388e3c",
-                borderColor: "#388e3c",
-              },
-            }}
-          >
-            Login
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            endIcon={<LogoutIcon />}
+            boxShadow: "0 4px 24px 0 rgba(0,0,0,0.18)",
+            border: "1.5px solid rgba(255,255,255,0.10)",
+            backdropFilter: "blur(10px)",
+            p: 0.5,
+          },
+        }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        {isAuth ? (
+          <MenuItem
             onClick={handleLogout}
-            sx={{
-              mx: 0.5,
-              mb: 4,
-              borderRadius: 2,
-              fontWeight: 600,
-              letterSpacing: 1,
-              fontSize: "0.8rem",
-              px: 1,
-              height: "24px",
-              boxShadow: "0 2px 4px rgba(233,30,99,0.15)",
-              transition: "all 0.2s",
-              "&:hover": {
-                background: "#fff",
-                color: "#d32f2f",
-                borderColor: "#d32f2f",
-              },
-            }}
+            sx={{ color: "#ffd54f", fontWeight: 600 }}
           >
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" sx={{ color: "#ffd54f" }} />
+            </ListItemIcon>
             Logout
-          </Button>
+          </MenuItem>
+        ) : (
+          <MenuItem
+            onClick={handleLogin}
+            sx={{ color: "#ffd54f", fontWeight: 600 }}
+          >
+            <ListItemIcon>
+              <LoginIcon fontSize="small" sx={{ color: "#ffd54f" }} />
+            </ListItemIcon>
+            Login
+          </MenuItem>
         )}
-      </Toolbar>
-      <LoginModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </AppBar>
+      </Menu>
+    </Box>
   );
 };
 

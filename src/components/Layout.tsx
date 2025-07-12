@@ -1,12 +1,25 @@
-import Header from "./Header";
-import Footer from "./Footer";
 import { Box } from "@mui/material";
+import Header from "./Header";
+import LoginModal from "./loginModal";
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
+interface LayoutProps {
+  children: React.ReactNode;
+  loginModalOpen: boolean;
+  setLoginModalOpen: (open: boolean) => void;
+}
+
+const Layout = ({
+  children,
+  loginModalOpen,
+  setLoginModalOpen,
+}: LayoutProps) => (
   <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
     <Header />
+    <LoginModal
+      open={loginModalOpen}
+      onClose={() => setLoginModalOpen(false)}
+    />
     <Box sx={{ flex: 1 }}>{children}</Box>
-    <Footer />
   </Box>
 );
 

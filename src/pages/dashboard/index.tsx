@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useSessions, useCreateSession } from "@/hooks/useApi";
 import {
   Container,
   Box,
@@ -52,51 +53,44 @@ function getCardPattern(index: number) {
 }
 
 export default function Dashboard() {
-  const [sessions, setSessions] = useState<Session[]>([]);
   const [search, setSearch] = useState("");
   const router = useRouter();
-  const user = useAuth();
+
+  // Add this useEffect to handle session_id query param redirect
+  useEffect(() => {
+    if (router.query.session_id) {
+      router.replace(`/dashboard/${router.query.session_id}`);
+    }
+  }, [router.query.session_id]);
+
+  const { accessToken, isLoading: authLoading } = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
   const [newSessionName, setNewSessionName] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState("");
-  const [loading, setLoading] = useState(true);
 
+  // Check if user is authenticated
   useEffect(() => {
-    if (!user || !user.user?.id) return;
-    setLoading(true);
-    fetch(`/api/session/getAllSession?userId=${user?.user?.id}`)
-      .then((res) => res.json())
-      .then((data) => setSessions(data.sessions || []))
-      .finally(() => setLoading(false));
-  }, [user]);
+    if (!authLoading && !accessToken) {
+      router.push("/");
+    }
+  }, [accessToken, authLoading, router]);
+
+  // React Query hooks - only run if user is authenticated
+  const { data: sessionsData, isLoading, error } = useSessions();
+  const createSessionMutation = useCreateSession();
+
+  const sessions = sessionsData?.sessions || [];
+
   const handleCreateSession = async () => {
     if (!newSessionName.trim()) {
-      setCreateError("Session name cannot be empty.");
       return;
     }
-    setCreating(true);
-    setCreateError("");
+
     try {
-      const res = await fetch("/api/session/createSession", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newSessionName, userId: user?.user?.id }),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to create session");
-      }
+      await createSessionMutation.mutateAsync(newSessionName);
       setCreateOpen(false);
       setNewSessionName("");
-      setLoading(true);
-      fetch(`/api/session/getAllSession?userId=${user?.user?.id}`)
-        .then((res) => res.json())
-        .then((data) => setSessions(data.sessions || []))
-        .finally(() => setLoading(false));
-    } catch (err) {
-      setCreateError("Error creating session. Please try again.");
-    } finally {
-      setCreating(false);
+    } catch (error) {
+      console.error("Error creating session:", error);
     }
   };
 
@@ -118,6 +112,39 @@ export default function Dashboard() {
   const handleSessionClick = (sessionId: string) => {
     router.push(`/dashboard/${sessionId}`);
   };
+
+  // Show loading or redirect if not authenticated
+  if (authLoading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Box sx={{ textAlign: "center", py: 8 }}>
+          <CircularProgress color="primary" />
+          <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
+            Loading...
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (!accessToken) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Box sx={{ textAlign: "center", py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            Please log in to access your dashboard
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={() => router.push("/")}
+            sx={{ mt: 2 }}
+          >
+            Go to Login
+          </Button>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -198,11 +225,17 @@ export default function Dashboard() {
           width: "100%",
         }}
       >
-        {loading ? (
+        {isLoading ? (
           <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
             <CircularProgress color="primary" sx={{ mt: 8 }} />
             <Typography variant="h6" color="text.secondary">
               Wait, your data is loading...
+            </Typography>
+          </Box>
+        ) : error ? (
+          <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
+            <Typography variant="h6" color="error">
+              Error loading sessions: {error.message}
             </Typography>
           </Box>
         ) : sortedSessions.length === 0 ? (
@@ -224,9 +257,7 @@ export default function Dashboard() {
               <motion.div
                 key={session.id}
                 layout
-                // initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1.1, y: 0 }}
-                // exit={{ opacity: 0, scale: 0.95, y: -20 }}
                 transition={{ duration: 0.25, type: "spring", stiffness: 120 }}
                 style={{ width: "100%" }}
               >
@@ -274,6 +305,7 @@ export default function Dashboard() {
           </AnimatePresence>
         )}
       </Box>
+
       <Dialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}
@@ -315,9 +347,7 @@ export default function Dashboard() {
             fullWidth
             value={newSessionName}
             onChange={(e) => setNewSessionName(e.target.value)}
-            disabled={creating}
-            error={!!createError}
-            helperText={createError}
+            disabled={createSessionMutation.isPending}
             variant="standard"
             sx={{
               color: "#1976d2",
@@ -327,7 +357,6 @@ export default function Dashboard() {
               "& .MuiInput-underline:before, & .MuiInput-underline:after": {
                 borderBottom: "2px solid #1976d2",
               },
-
               fontSize: "1.1rem",
               "& .MuiInputBase-input": {
                 color: "text.primary",
@@ -351,7 +380,7 @@ export default function Dashboard() {
         >
           <Button
             onClick={() => setCreateOpen(false)}
-            disabled={creating}
+            disabled={createSessionMutation.isPending}
             sx={{
               fontFamily: "'Montserrat', sans-serif",
               color: "text.secondary",
@@ -370,7 +399,7 @@ export default function Dashboard() {
           <Button
             onClick={handleCreateSession}
             variant="contained"
-            disabled={creating}
+            disabled={createSessionMutation.isPending || !newSessionName.trim()}
             sx={{
               fontFamily: "'Montserrat', sans-serif",
               fontWeight: 700,
@@ -389,7 +418,7 @@ export default function Dashboard() {
               },
             }}
           >
-            {creating ? (
+            {createSessionMutation.isPending ? (
               <CircularProgress size={24} sx={{ color: "#fff" }} />
             ) : (
               "Create"

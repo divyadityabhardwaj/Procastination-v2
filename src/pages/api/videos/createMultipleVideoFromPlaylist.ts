@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { handler } from "./createSingleVideo";
 
@@ -6,7 +6,32 @@ export default async function createMultipleVideosFromPlaylist(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { sessionId, playlistUrl } = req.query;
+  const { noteId, playlistUrl } = req.query;
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader)
+    return res.status(401).json({ error: "Missing authorization header" });
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return res.status(401).json({ error: "Invalid user session" });
+
+  // Check note ownership
+  const { data: note, error: noteError } = await supabase
+    .from("notes")
+    .select("id, user_id")
+    .eq("id", noteId)
+    .single();
+  if (noteError || !note || note.user_id !== user.id) {
+    return res.status(403).json({ error: "You do not own this note" });
+  }
 
   if (!playlistUrl) {
     return res.status(400).json({ error: "Playlist URL is required" });
@@ -27,14 +52,13 @@ export default async function createMultipleVideosFromPlaylist(
     const results = await Promise.all(
       videos.map(async (video) => {
         try {
-          const { title, thumbnail } = await handler(video);
+          const { title } = await handler(video);
           const { data, error } = await supabase
             .from("videos")
             .insert({
-              session_id: sessionId,
-              thumbnail,
+              note_id: noteId,
               youtube_url: video,
-              name: title,
+              title,
             })
             .select("*");
 
@@ -44,7 +68,6 @@ export default async function createMultipleVideosFromPlaylist(
 
           return data[0];
         } catch (error) {
-          console.error(`Error processing video ${video}:`, error);
           throw error;
         }
       })
@@ -55,7 +78,6 @@ export default async function createMultipleVideosFromPlaylist(
       message: "Successfully created videos from playlist",
     });
   } catch (error: any) {
-    console.error("Error creating videos from playlist:", error);
     return res
       .status(500)
       .json({ error: error.message || "Internal server error" });
