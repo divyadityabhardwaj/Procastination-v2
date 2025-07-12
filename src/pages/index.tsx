@@ -27,6 +27,7 @@ import { useThemeMode } from "@/hooks/useThemeMode";
 import { useTheme } from "@mui/material/styles";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
+import Header from "@/components/Header";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -93,6 +94,7 @@ export default function Home() {
         overflowX: "hidden",
       }}
     >
+      <Header />
       {/* Hero Section (containerized) */}
       <Box
         sx={{

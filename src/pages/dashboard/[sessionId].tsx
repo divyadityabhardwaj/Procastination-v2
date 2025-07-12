@@ -30,6 +30,7 @@ import {
   Note as NoteIcon,
   PlayArrow as PlayIcon,
   List as ListIcon,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
 import { Notepad } from "@/components/Notepad";
 import { YouTubePlayer } from "@/components/YoutubePlayer";
@@ -40,6 +41,7 @@ import {
   useVideos,
   useCreateVideo,
 } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Note {
   id: string;
@@ -65,6 +67,7 @@ type CenterTabType = "video" | "videoList";
 export default function SessionPage() {
   const router = useRouter();
   const { sessionId } = router.query;
+  const { accessToken } = useAuth();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [createNoteOpen, setCreateNoteOpen] = useState(false);
@@ -114,7 +117,6 @@ export default function SessionPage() {
   }, [videos, selectedVideo]);
 
   const handleCreateNote = async () => {
-
     try {
       const newNote = (await createNoteMutation.mutateAsync({
         sessionId: sessionId as string,
@@ -149,6 +151,13 @@ export default function SessionPage() {
 
   const handleVideoSelect = (video: Video) => {
     setSelectedVideo(video);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    window.dispatchEvent(new Event("authChanged"));
+    router.push("/");
+    window.location.reload();
   };
 
   // Helper function to get note title
@@ -493,7 +502,17 @@ export default function SessionPage() {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {/* Empty space to keep layout balanced */}
+          <Tooltip title="Logout">
+            <IconButton
+              onClick={handleLogout}
+              sx={{
+                color: "#ffd54f",
+                "&:hover": { bgcolor: "rgba(255, 213, 79, 0.1)" },
+              }}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
       </Box>
 
@@ -966,10 +985,7 @@ export default function SessionPage() {
           <Button
             onClick={handleCreateNote}
             variant="contained"
-            disabled={
-              createNoteMutation.isPending ||
-              !newNoteTitle.trim() 
-            }
+            disabled={createNoteMutation.isPending || !newNoteTitle.trim()}
             sx={{
               fontWeight: 700,
               borderRadius: 2,

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessions, useCreateSession } from "@/hooks/useApi";
+import Header from "@/components/Header";
 import {
   Container,
   Box,
@@ -157,6 +158,7 @@ export default function Dashboard() {
         py: 4,
       }}
     >
+      <Header />
       <Container maxWidth="lg">
         {/* Header Section */}
         <Box

@@ -8,6 +8,7 @@ import {
   ListItemIcon,
   Tooltip,
   Box,
+  Button,
 } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -43,11 +44,41 @@ const Header = () => {
     setIsAuth(false);
     window.dispatchEvent(new Event("authChanged"));
     router.push("/");
-    window.location.reload();
   };
 
   return (
-    <Box sx={{ position: "fixed", top: 16, right: 24, zIndex: 1300 }}>
+    <Box
+      sx={{
+        position: "fixed",
+        top: 16,
+        left: 24,
+        right: 24,
+        zIndex: 1300,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      {/* Procastination Button */}
+      <Button
+        onClick={() => router.push("/")}
+        variant="text"
+        sx={{
+          color: "#ffd54f",
+          fontWeight: 700,
+          fontSize: "1.2rem",
+          textTransform: "none",
+          letterSpacing: 1,
+          "&:hover": {
+            bgcolor: "rgba(255, 213, 79, 0.1)",
+            color: "#ffe082",
+          },
+        }}
+      >
+        Procastination
+      </Button>
+
+      {/* Profile Icon */}
       <Tooltip title="Account & Settings">
         <IconButton
           onClick={handleMenu}

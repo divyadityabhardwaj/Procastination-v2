@@ -158,6 +158,66 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           {isLogin ? "Welcome back!" : "Create Account"}
         </Typography>
 
+        {isLogin && (
+          <Box
+            sx={{
+              bgcolor: "rgba(255, 213, 79, 0.1)",
+              border: "1px solid rgba(255, 213, 79, 0.3)",
+              borderRadius: 2,
+              p: 2,
+              mb: 2,
+              zIndex: 1,
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#ffd54f",
+                fontWeight: 500,
+                mb: 1,
+                textAlign: "center",
+              }}
+            >
+              Demo Account
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "rgba(255, 255, 255, 0.8)",
+                fontSize: "0.875rem",
+                textAlign: "center",
+                mb: 1,
+              }}
+            >
+              Email: demo@example.com
+              <br />
+              Password: 123456
+            </Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              fullWidth
+              onClick={() => {
+                setEmail("demo@example.com");
+                setPassword("123456");
+              }}
+              sx={{
+                borderColor: "#ffd54f",
+                color: "#ffd54f",
+                fontSize: "0.75rem",
+                py: 0.5,
+                "&:hover": {
+                  borderColor: "#ffe082",
+                  color: "#ffe082",
+                  bgcolor: "rgba(255, 213, 79, 0.1)",
+                },
+              }}
+            >
+              Use Demo Account
+            </Button>
+          </Box>
+        )}
+
         {error && (
           <Alert
             severity="error"
