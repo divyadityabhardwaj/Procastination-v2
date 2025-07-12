@@ -116,11 +116,9 @@ export const Notepad = ({
 
   const handleSaveNote = async () => {
     if (!note) {
-      console.log("No note selected, cannot save");
       return;
     }
 
-    console.log("Saving note:", note.id, content);
     try {
       await updateNoteMutation.mutateAsync({
         noteId: note.id,

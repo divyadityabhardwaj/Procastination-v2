@@ -33,10 +33,8 @@ export default async function createSingleVideo(
   }
 
   try {
-    console.log("Creating video for note:", noteId, "with URL:", videoUrl);
 
     const { title } = await handler(videoUrl as string);
-    console.log("Got title from YouTube API:", title);
 
     const { data, error } = await supabase
       .from("videos")
@@ -52,7 +50,6 @@ export default async function createSingleVideo(
       return res.status(400).json({ error: error.message });
     }
 
-    console.log("Successfully created video:", data);
     return res.status(200).json({ videos: data });
   } catch (error: any) {
     console.error("Main function error:", error);
@@ -64,7 +61,6 @@ export default async function createSingleVideo(
 
 export async function handler(youtubeUrl: string) {
   try {
-    console.log("Processing YouTube URL:", youtubeUrl);
 
     const urlObj = new URL(youtubeUrl);
     const videoId = urlObj.searchParams.get("v");
@@ -72,17 +68,13 @@ export async function handler(youtubeUrl: string) {
       throw new Error("Invalid YouTube URL: Missing 'v' parameter");
     }
 
-    console.log("Extracted video ID:", videoId);
 
     if (!process.env.YOUTUBE_API_KEY) {
       throw new Error("YouTube API key is not configured");
     }
 
     const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`;
-    console.log(
-      "Making YouTube API request to:",
-      apiUrl.replace(process.env.YOUTUBE_API_KEY!, "[API_KEY]")
-    );
+
 
     const response = await fetch(apiUrl);
 
@@ -95,14 +87,12 @@ export async function handler(youtubeUrl: string) {
     }
 
     const data = await response.json();
-    console.log("YouTube API response:", JSON.stringify(data, null, 2));
 
     if (!data?.items || data.items.length === 0 || !data.items[0]?.snippet) {
       throw new Error("Invalid YouTube video data received");
     }
 
     const { title } = data.items[0].snippet;
-    console.log("Extracted title:", title);
     return { title };
   } catch (error: any) {
     console.error("Handler error:", error);

@@ -68,8 +68,6 @@ export const AIChat = ({ videos }: { videos: Video[] }) => {
     }
 
     try {
-      console.log("Fetching summary for video ID:", videoId);
-
       // Add the summary request to messages
       const userMessage: Message = {
         content: `Please tell me the video summary for video ID: ${videoId}`,

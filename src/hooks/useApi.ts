@@ -66,7 +66,6 @@ export const useUpdateNote = () => {
 
   return useMutation({
     mutationFn: ({ noteId, content }: { noteId: string; content: string }) => {
-      console.log("useUpdateNote called with:", { noteId, content });
       return api.updateNote(noteId, content);
     },
     onSuccess: () => {

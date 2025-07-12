@@ -12,19 +12,14 @@ const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 async function getSubtitles(videoId: string): Promise<string | null> {
   try {
-    console.log("Fetching transcript for video ID:", videoId);
-
     const transcript = await YoutubeTranscript.fetchTranscript(videoId);
-    console.log("Transcript fetched successfully, length:", transcript.length);
 
     const formattedTranscript = transcript
       .map((line: any) => line.text)
       .join(" ");
 
-    console.log("Formatted transcript length:", formattedTranscript.length);
     return formattedTranscript;
   } catch (error: any) {
-    console.error("Error fetching transcript:", error);
     return null; // Return null instead of throwing to allow fallback
   }
 }
@@ -33,8 +28,6 @@ async function getVideoMetadata(
   videoId: string
 ): Promise<{ title: string; description: string } | null> {
   try {
-    console.log("Fetching video metadata for video ID:", videoId);
-
     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
     // Fetch the YouTube page
@@ -91,14 +84,11 @@ async function getVideoMetadata(
       description = description.substring(0, 500) + "...";
     }
 
-    console.log("Video metadata fetched successfully");
-
     return {
       title,
       description,
     };
   } catch (error: any) {
-    console.error("Error fetching video metadata:", error);
     return null;
   }
 }
@@ -113,8 +103,6 @@ export default async function handler(
 
   try {
     const { videoId } = req.body;
-
-    console.log("Processing video summary request for video ID:", videoId);
 
     if (!videoId) {
       return res.status(400).json({ error: "Video ID is required" });
@@ -138,7 +126,6 @@ export default async function handler(
       summarySource = "transcript";
     } else {
       // Fallback to video metadata
-      console.log("No transcript available, fetching video metadata...");
       const metadata = await getVideoMetadata(videoId);
 
       if (!metadata) {
@@ -161,8 +148,6 @@ export default async function handler(
       summarySource = "metadata";
     }
 
-    console.log(`Generating summary with Gemini API using ${summarySource}...`);
-
     // Create chat with Gemini
     const chat = ai.chats.create({
       model: "gemini-2.0-flash",
@@ -174,15 +159,11 @@ export default async function handler(
       message: summaryPrompt,
     });
 
-    console.log("Summary generated successfully");
-
     return res.status(200).json({
       response: response.text,
       source: summarySource, // Indicate whether summary was based on transcript or metadata
     });
   } catch (error: any) {
-    console.error("Error in getVideoSummary:", error);
-
     return res.status(500).json({
       error: error.message || "Failed to get summary from Gemini API",
     });

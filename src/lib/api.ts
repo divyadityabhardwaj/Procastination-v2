@@ -5,24 +5,16 @@ const getAuthHeaders = () => {
     "Content-Type": "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   };
-  console.log("Auth headers:", headers);
   return headers;
 };
 
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
-    console.log("API Error Response:", {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.url,
-    });
-
     let errorData: any = {};
     try {
       errorData = await response.json();
-      console.log("Error data:", errorData);
     } catch (e) {
-      console.log("Could not parse error response as JSON");
+      console.error("Could not parse error response as JSON");
     }
 
     // Handle authentication errors
@@ -39,7 +31,6 @@ const handleResponse = async (response: Response) => {
     if (response.status === 400) {
       const errorMessage =
         errorData.error || errorData.message || "Bad request";
-      console.log("400 Error details:", errorMessage);
       throw new Error(`Request failed: ${errorMessage}`);
     }
 
@@ -59,11 +50,6 @@ export const api = {
     if (!token) {
       throw new Error("No access token found. Please log in.");
     }
-
-    console.log(
-      "Making getSessions request with token:",
-      token ? "Token exists" : "No token"
-    );
 
     const response = await fetch("/api/session/getAllSession", {
       headers: getAuthHeaders(),
@@ -106,7 +92,6 @@ export const api = {
   },
 
   updateNote: async (noteId: string, content: string) => {
-    console.log("updateNote API called with:", { noteId, content });
     const response = await fetch("/api/notes/updateNote", {
       method: "PUT",
       headers: getAuthHeaders(),
@@ -141,7 +126,6 @@ export const api = {
 
   // AI APIs
   getVideoSummary: async (videoId: string) => {
-    console.log("getVideoSummary API called with videoId:", videoId);
     const response = await fetch("/api/gemini/getVideoSummary", {
       method: "POST",
       headers: getAuthHeaders(),
