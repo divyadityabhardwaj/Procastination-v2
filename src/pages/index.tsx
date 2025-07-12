@@ -17,6 +17,7 @@ import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import ChatIcon from "@mui/icons-material/Chat";
 import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
@@ -24,6 +25,8 @@ import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { useThemeMode } from "@/hooks/useThemeMode";
 import { useTheme } from "@mui/material/styles";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/router";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -37,9 +40,11 @@ const sectionGradient = (from: string, to: string) => ({
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [particlesInit, setParticlesInit] = useState(false);
+  const { accessToken } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
+    initParticlesEngine(async (engine: any) => {
       await loadSlim(engine);
     }).then(() => {
       setParticlesInit(true);
@@ -208,24 +213,48 @@ export default function Home() {
                 Supercharge your productivity with AI-powered video summaries,
                 note-taking, and seamless session management.
               </Typography>
-              <Button
-                onClick={() => setIsModalOpen(true)}
-                variant="contained"
-                size="large"
-                sx={{
-                  color: "#121212",
-                  bgcolor: "#fff",
-                  fontWeight: 700,
-                  px: 5,
-                  py: 1.5,
-                  borderRadius: 2,
-                  fontSize: "1.1rem",
-                  boxShadow: 2,
-                  "&:hover": { bgcolor: "#e0e0e0" },
-                }}
-              >
-                Get Started
-              </Button>
+              <Stack direction="row" spacing={2} justifyContent="center">
+                {accessToken ? (
+                  <Button
+                    onClick={() => router.push("/dashboard")}
+                    variant="contained"
+                    size="large"
+                    startIcon={<DashboardIcon />}
+                    sx={{
+                      color: "#121212",
+                      bgcolor: "#ffd54f",
+                      fontWeight: 700,
+                      px: 5,
+                      py: 1.5,
+                      borderRadius: 2,
+                      fontSize: "1.1rem",
+                      boxShadow: 2,
+                      "&:hover": { bgcolor: "#ffb300" },
+                    }}
+                  >
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setIsModalOpen(true)}
+                    variant="contained"
+                    size="large"
+                    sx={{
+                      color: "#121212",
+                      bgcolor: "#fff",
+                      fontWeight: 700,
+                      px: 5,
+                      py: 1.5,
+                      borderRadius: 2,
+                      fontSize: "1.1rem",
+                      boxShadow: 2,
+                      "&:hover": { bgcolor: "#e0e0e0" },
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                )}
+              </Stack>
             </Container>
           </motion.div>
         </Box>

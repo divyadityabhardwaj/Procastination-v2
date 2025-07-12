@@ -175,8 +175,8 @@ export const Notepad = ({
         </Button>
         <StyledTabs value={activeTab} onChange={handleTabChange}>
           <Tab label="Notepad" />
-          <Tab label="Videos" />
-          <Tab label="AI Chat" />
+          {/* <Tab label="Videos" />
+          <Tab label="AI Chat" /> */}
         </StyledTabs>
       </Stack>
 

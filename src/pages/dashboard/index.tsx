@@ -150,285 +150,374 @@ export default function Dashboard() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 4,
-          px: { xs: 2, sm: 0 },
-        }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setCreateOpen(true)}
-          sx={{ fontWeight: 600 }}
-        >
-          + New Session
-        </Button>
-
-        <TextField
-          label="Search sessions"
-          variant="standard"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            disableUnderline: false,
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="primary" />
-              </InputAdornment>
-            ),
-            sx: {
-              fontWeight: 600,
-              fontFamily: "'Montserrat', sans-serif",
-              fontSize: "1.15rem",
-            },
-          }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #232526 0%, #414345 100%)",
+        py: 4,
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Header Section */}
+        <Box
           sx={{
-            width: { xs: "100%", sm: 340 },
-            "& .MuiInputBase-root": {
-              borderBottom: "2px solid #1976d2",
-              borderRadius: 0,
-            },
-            "& .MuiInputBase-input": {
-              color: "text.primary",
-              fontWeight: 600,
-              fontFamily: "'Montserrat', sans-serif",
-              letterSpacing: 1,
-              px: 0,
-              py: 1,
-            },
-            "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-              borderBottom: "2px solid #1976d2",
-            },
-            "& .MuiInputLabel-root": {
-              fontWeight: 500,
-              fontFamily: "'Montserrat', sans-serif",
-              color: "#1976d2",
-              letterSpacing: 1,
-            },
+            mb: 6,
+            textAlign: "center",
           }}
-        />
-      </Box>
-
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr",
-            sm: "repeat(2, 1fr)",
-            md: "repeat(3, 1fr)",
-            lg: "repeat(4, 1fr)",
-          },
-          gap: 4,
-          width: "100%",
-        }}
-      >
-        {isLoading ? (
-          <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
-            <CircularProgress color="primary" sx={{ mt: 8 }} />
-            <Typography variant="h6" color="text.secondary">
-              Wait, your data is loading...
-            </Typography>
-          </Box>
-        ) : error ? (
-          <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
-            <Typography variant="h6" color="error">
-              Error loading sessions: {error.message}
-            </Typography>
-          </Box>
-        ) : sortedSessions.length === 0 ? (
-          <Box
+        >
+          <Typography
+            variant="h3"
             sx={{
-              gridColumn: "1 / -1",
-              textAlign: "center",
-              color: "text.secondary",
-              py: 6,
+              color: "#ffd54f",
+              fontWeight: 700,
+              mb: 2,
+              textShadow: "0 2px 4px rgba(0,0,0,0.3)",
             }}
           >
-            <Typography variant="h6" fontWeight={500}>
-              No sessions found.
-            </Typography>
-          </Box>
-        ) : (
-          <AnimatePresence>
-            {sortedSessions.map((session, idx) => (
-              <motion.div
-                key={session.id}
-                layout
-                animate={{ opacity: 1, scale: 1.1, y: 0 }}
-                transition={{ duration: 0.25, type: "spring", stiffness: 120 }}
-                style={{ width: "100%" }}
-              >
-                <Card
-                  key={session.id}
-                  sx={{
-                    width: "100%",
-                    height: 200,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    borderRadius: 4,
-                    boxShadow: 4,
-                    position: "relative",
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease-in-out",
-                    ...getCardPattern(idx),
-                    "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
-                    },
-                  }}
-                  onClick={() => handleSessionClick(session.id)}
-                >
-                  <CardContent
-                    sx={{
-                      width: "100%",
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      textAlign: "center",
-                      gap: 2,
-                    }}
-                  >
-                    <Typography variant="h6" component="div">
-                      {session.name}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        )}
-      </Box>
-
-      <Dialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        PaperProps={{
-          sx: {
-            background: "rgba(18, 18, 18, 0.98)",
-            borderRadius: 4,
-            boxShadow: 12,
-            p: 2,
-            minWidth: { xs: "90vw", sm: 400 },
-            fontFamily: "'Montserrat', sans-serif",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontWeight: 500,
-            fontFamily: "'Montserrat', sans-serif",
-            color: "primary.main",
-            fontSize: "1rem",
-            pb: 0,
-            letterSpacing: 1,
-            background: "transparent",
-          }}
-        >
-          Create New Session
-        </DialogTitle>
-        <DialogContent
-          sx={{
-            mt: 1,
-            background: "transparent",
-            fontFamily: "'Montserrat', sans-serif",
-          }}
-        >
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Session Name"
-            fullWidth
-            value={newSessionName}
-            onChange={(e) => setNewSessionName(e.target.value)}
-            disabled={createSessionMutation.isPending}
-            variant="standard"
+            Your Dashboard
+          </Typography>
+          <Typography
+            variant="h6"
             sx={{
-              color: "#1976d2",
-              fontWeight: 500,
-              fontFamily: "'Montserrat', sans-serif",
-              letterSpacing: 1,
-              "& .MuiInput-underline:before, & .MuiInput-underline:after": {
-                borderBottom: "2px solid #1976d2",
-              },
+              color: "rgba(255,255,255,0.8)",
+              fontWeight: 400,
+            }}
+          >
+            Manage your learning sessions and track your progress
+          </Typography>
+        </Box>
+
+        {/* Controls Section */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "stretch", sm: "center" },
+            mb: 6,
+            gap: 3,
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={() => setCreateOpen(true)}
+            sx={{
+              bgcolor: "#ffd54f",
+              color: "#121212",
+              fontWeight: 700,
+              px: 4,
+              py: 1.5,
+              borderRadius: 3,
               fontSize: "1.1rem",
-              "& .MuiInputBase-input": {
-                color: "text.primary",
-                fontWeight: 600,
-                fontFamily: "'Montserrat', sans-serif",
-                letterSpacing: 1,
+              boxShadow: "0 4px 12px rgba(255, 213, 79, 0.3)",
+              "&:hover": {
+                bgcolor: "#ffb300",
+                boxShadow: "0 6px 16px rgba(255, 213, 79, 0.4)",
               },
-              mb: 1,
+            }}
+          >
+            + New Session
+          </Button>
+
+          <TextField
+            label="Search sessions"
+            variant="outlined"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: "#ffd54f" }} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: { xs: "100%", sm: 340 },
+              "& .MuiOutlinedInput-root": {
+                bgcolor: "rgba(255,255,255,0.1)",
+                borderRadius: 3,
+                "& fieldset": {
+                  borderColor: "rgba(255,255,255,0.2)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#ffd54f",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#ffd54f",
+                },
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                fontWeight: 500,
+                "&::placeholder": {
+                  color: "rgba(255,255,255,0.6)",
+                  opacity: 1,
+                },
+              },
+              "& .MuiInputLabel-root": {
+                color: "rgba(255,255,255,0.7)",
+                "&.Mui-focused": {
+                  color: "#ffd54f",
+                },
+              },
             }}
           />
-        </DialogContent>
-        <DialogActions
+        </Box>
+
+        <Box
           sx={{
-            px: 3,
-            pb: 2,
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 2,
-            background: "transparent",
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              md: "repeat(3, 1fr)",
+              lg: "repeat(4, 1fr)",
+            },
+            gap: 4,
+            width: "100%",
           }}
         >
-          <Button
-            onClick={() => setCreateOpen(false)}
-            disabled={createSessionMutation.isPending}
+          {isLoading ? (
+            <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
+              <CircularProgress color="primary" sx={{ mt: 8 }} />
+              <Typography variant="h6" color="text.secondary">
+                Wait, your data is loading...
+              </Typography>
+            </Box>
+          ) : error ? (
+            <Box sx={{ gridColumn: "1 / -1", textAlign: "center", py: 6 }}>
+              <Typography variant="h6" color="error">
+                Error loading sessions: {error.message}
+              </Typography>
+            </Box>
+          ) : sortedSessions.length === 0 ? (
+            <Box
+              sx={{
+                gridColumn: "1 / -1",
+                textAlign: "center",
+                color: "text.secondary",
+                py: 6,
+              }}
+            >
+              <Typography variant="h6" fontWeight={500}>
+                No sessions found.
+              </Typography>
+            </Box>
+          ) : (
+            <AnimatePresence>
+              {sortedSessions.map((session, idx) => (
+                <motion.div
+                  key={session.id}
+                  layout
+                  animate={{ opacity: 1, scale: 1.1, y: 0 }}
+                  transition={{
+                    duration: 0.25,
+                    type: "spring",
+                    stiffness: 120,
+                  }}
+                  style={{ width: "100%" }}
+                >
+                  <Card
+                    key={session.id}
+                    sx={{
+                      width: "100%",
+                      height: 200,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                      boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                      position: "relative",
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease-in-out",
+                      background:
+                        "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      "&:hover": {
+                        transform: "translateY(-8px) scale(1.02)",
+                        boxShadow: "0 16px 48px rgba(255, 213, 79, 0.2)",
+                        border: "1px solid rgba(255, 213, 79, 0.3)",
+                      },
+                    }}
+                    onClick={() => handleSessionClick(session.id)}
+                  >
+                    <CardContent
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        gap: 2,
+                        p: 3,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{
+                          color: "#fff",
+                          fontWeight: 600,
+                          fontSize: "1.25rem",
+                          textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        {session.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "rgba(255,255,255,0.7)",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        Click to open session
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          )}
+        </Box>
+
+        <Dialog
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          PaperProps={{
+            sx: {
+              background: "linear-gradient(135deg, #232526 0%, #414345 100%)",
+              borderRadius: 4,
+              boxShadow: "0 16px 48px rgba(0,0,0,0.4)",
+              p: 2,
+              minWidth: { xs: "90vw", sm: 400 },
+              border: "1px solid rgba(255,255,255,0.1)",
+              backdropFilter: "blur(10px)",
+            },
+          }}
+        >
+          <DialogTitle
             sx={{
-              fontFamily: "'Montserrat', sans-serif",
-              color: "text.secondary",
               fontWeight: 600,
-              borderRadius: 2,
-              px: 2.5,
-              py: 1,
-              background: "rgba(25, 118, 210, 0.07)",
-              "&:hover": {
-                background: "rgba(25, 118, 210, 0.15)",
-              },
+              color: "#ffd54f",
+              fontSize: "1.25rem",
+              pb: 0,
+              letterSpacing: 1,
+              background: "transparent",
+              textAlign: "center",
             }}
           >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateSession}
-            variant="contained"
-            disabled={createSessionMutation.isPending || !newSessionName.trim()}
+            Create New Session
+          </DialogTitle>
+          <DialogContent
             sx={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 700,
-              borderRadius: 2,
-              px: 3,
-              py: 1.2,
-              maxHeight: 40,
-              background:
-                "linear-gradient(90deg,rgb(0, 116, 232) 60%,rgb(0, 117, 212) 100%)",
-              color: "#fff",
-              boxShadow: 3,
-              textTransform: "none",
-              fontSize: "1.05rem",
-              "&:hover": {
-                background: "linear-gradient(90deg,rgb(57, 120, 168) 100%)",
-              },
+              mt: 2,
+              background: "transparent",
             }}
           >
-            {createSessionMutation.isPending ? (
-              <CircularProgress size={24} sx={{ color: "#fff" }} />
-            ) : (
-              "Create"
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Session Name"
+              fullWidth
+              value={newSessionName}
+              onChange={(e) => setNewSessionName(e.target.value)}
+              disabled={createSessionMutation.isPending}
+              variant="outlined"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  borderRadius: 2,
+                  "& fieldset": {
+                    borderColor: "rgba(255,255,255,0.2)",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#ffd54f",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#ffd54f",
+                  },
+                },
+                "& .MuiInputBase-input": {
+                  color: "#fff",
+                  fontWeight: 500,
+                  "&::placeholder": {
+                    color: "rgba(255,255,255,0.6)",
+                    opacity: 1,
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "rgba(255,255,255,0.7)",
+                  "&.Mui-focused": {
+                    color: "#ffd54f",
+                  },
+                },
+              }}
+            />
+          </DialogContent>
+          <DialogActions
+            sx={{
+              px: 3,
+              pb: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 2,
+              background: "transparent",
+            }}
+          >
+            <Button
+              onClick={() => setCreateOpen(false)}
+              disabled={createSessionMutation.isPending}
+              sx={{
+                color: "rgba(255,255,255,0.7)",
+                fontWeight: 600,
+                borderRadius: 2,
+                px: 2.5,
+                py: 1,
+                background: "rgba(255,255,255,0.1)",
+                "&:hover": {
+                  background: "rgba(255,255,255,0.2)",
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateSession}
+              variant="contained"
+              disabled={
+                createSessionMutation.isPending || !newSessionName.trim()
+              }
+              sx={{
+                fontWeight: 700,
+                borderRadius: 2,
+                px: 3,
+                py: 1.2,
+                maxHeight: 40,
+                bgcolor: "#ffd54f",
+                color: "#121212",
+                boxShadow: "0 4px 12px rgba(255, 213, 79, 0.3)",
+                textTransform: "none",
+                fontSize: "1.05rem",
+                "&:hover": {
+                  bgcolor: "#ffb300",
+                  boxShadow: "0 6px 16px rgba(255, 213, 79, 0.4)",
+                },
+              }}
+            >
+              {createSessionMutation.isPending ? (
+                <CircularProgress size={24} sx={{ color: "#121212" }} />
+              ) : (
+                "Create"
+              )}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </Box>
   );
 }
