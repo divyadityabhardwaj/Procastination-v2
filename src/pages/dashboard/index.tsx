@@ -61,7 +61,7 @@ export default function Dashboard() {
     if (router.query.session_id) {
       router.replace(`/dashboard/${router.query.session_id}`);
     }
-  }, [router.query.session_id]);
+  }, [router.query.session_id, router]);
 
   const { accessToken, isLoading: authLoading } = useAuth();
   const [createOpen, setCreateOpen] = useState(false);
@@ -78,7 +78,10 @@ export default function Dashboard() {
   const { data: sessionsData, isLoading, error } = useSessions();
   const createSessionMutation = useCreateSession();
 
-  const sessions = sessionsData?.sessions || [];
+  const sessions = useMemo(
+    () => sessionsData?.sessions || [],
+    [sessionsData?.sessions]
+  );
 
   const handleCreateSession = async () => {
     if (!newSessionName.trim()) {

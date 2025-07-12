@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
 import {
   Box,
@@ -67,8 +67,8 @@ export default function SessionPage() {
   const createNoteMutation = useCreateNote();
   const createVideoMutation = useCreateVideo();
 
-  const notes = notesData?.notes || [];
-  const videos = videosData?.videos || [];
+  const notes = useMemo(() => notesData?.notes || [], [notesData?.notes]);
+  const videos = useMemo(() => videosData?.videos || [], [videosData?.videos]);
 
   // Set first note as selected when notes load
   useEffect(() => {

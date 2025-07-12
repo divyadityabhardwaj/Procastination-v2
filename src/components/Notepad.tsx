@@ -227,7 +227,7 @@ export const Notepad = ({
               >
                 No videos added to this note yet.
                 <br />
-                Click "Add Video" to get started.
+                Click &quot;Add Video&quot; to get started.
               </Typography>
             ) : (
               <List>

@@ -4,6 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { getTheme } from "@/lib/theme";
 import dynamic from "next/dynamic";
+import { QueryClient } from "@tanstack/react-query";
 
 // Dynamically import React Query to avoid TypeScript issues
 const QueryClientProvider = dynamic(
@@ -23,7 +24,7 @@ const ReactQueryDevtools = dynamic(
 );
 
 // Create a client
-const queryClient = new (require("@tanstack/react-query").QueryClient)({
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes

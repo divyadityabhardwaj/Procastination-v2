@@ -397,10 +397,9 @@ export const AIChat = ({ videos }: { videos: Video[] }) => {
       </Box>
 
       <Toast
-        open={showToast}
+        show={showToast}
         message={toastMessage}
         onClose={handleCloseToast}
-        severity="error"
       />
     </Box>
   );
