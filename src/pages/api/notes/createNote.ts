@@ -9,7 +9,7 @@ export default async function createNoteInSession(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { session_id, content } = req.body;
+  const { session_id, title, content } = req.body;
   const authHeader = req.headers.authorization;
 
   if (!authHeader)
@@ -35,6 +35,7 @@ export default async function createNoteInSession(
     .insert({
       session_id,
       user_id: user.id,
+      title,
       content,
     })
     .select("*");

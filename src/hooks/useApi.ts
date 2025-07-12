@@ -48,11 +48,13 @@ export const useCreateNote = () => {
   return useMutation({
     mutationFn: ({
       sessionId,
+      title,
       content,
     }: {
       sessionId: string;
+      title: string;
       content: string;
-    }) => api.createNote(sessionId, content),
+    }) => api.createNote(sessionId, title, content),
     onSuccess: (_, { sessionId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.notes(sessionId) });
     },

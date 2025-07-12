@@ -96,11 +96,11 @@ export const api = {
     return handleResponse(response);
   },
 
-  createNote: async (sessionId: string, content: string) => {
+  createNote: async (sessionId: string, title: string, content: string) => {
     const response = await fetch("/api/notes/createNote", {
       method: "POST",
       headers: getAuthHeaders(),
-      body: JSON.stringify({ session_id: sessionId, content }),
+      body: JSON.stringify({ session_id: sessionId, title, content }),
     });
     return handleResponse(response);
   },

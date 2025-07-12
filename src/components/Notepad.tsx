@@ -66,6 +66,7 @@ const StyledTabs = styled(Tabs)({
 
 interface Note {
   id: string;
+  title: string;
   content: string;
   session_id: string;
   user_id: string;
@@ -163,7 +164,7 @@ export const Notepad = ({
     <Box sx={{ p: 3, height: "100vh", overflow: "hidden" }}>
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
         <Typography variant="h6" gutterBottom sx={{ flex: 1 }}>
-          {note.content.replace(/<[^>]*>/g, "").substring(0, 30)}...
+          {note.title}
         </Typography>
         <Button
           variant="outlined"

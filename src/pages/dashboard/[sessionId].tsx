@@ -43,6 +43,7 @@ import {
 
 interface Note {
   id: string;
+  title: string;
   content: string;
   session_id: string;
   user_id: string;
@@ -67,6 +68,7 @@ export default function SessionPage() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [createNoteOpen, setCreateNoteOpen] = useState(false);
+  const [newNoteTitle, setNewNoteTitle] = useState("");
   const [newNoteContent, setNewNoteContent] = useState("");
 
   // Tab management
@@ -112,15 +114,16 @@ export default function SessionPage() {
   }, [videos, selectedVideo]);
 
   const handleCreateNote = async () => {
-    if (!newNoteContent.trim() || !sessionId) return;
 
     try {
       const newNote = (await createNoteMutation.mutateAsync({
         sessionId: sessionId as string,
+        title: newNoteTitle,
         content: newNoteContent,
       })) as { note: Note };
       setSelectedNote(newNote.note);
       setCreateNoteOpen(false);
+      setNewNoteTitle("");
       setNewNoteContent("");
     } catch (error) {
       console.error("Error creating note:", error);
@@ -146,6 +149,11 @@ export default function SessionPage() {
 
   const handleVideoSelect = (video: Video) => {
     setSelectedVideo(video);
+  };
+
+  // Helper function to get note title
+  const getNoteTitle = (note: Note) => {
+    return note.title || "Untitled Note";
   };
 
   // Resizing functionality
@@ -655,7 +663,7 @@ export default function SessionPage() {
                         fontSize: "0.875rem",
                       }}
                     >
-                      {note.content.replace(/<[^>]*>/g, "").substring(0, 80)}...
+                      {getNoteTitle(note)}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -850,6 +858,45 @@ export default function SessionPage() {
           <TextField
             autoFocus
             margin="dense"
+            label="Note title"
+            fullWidth
+            value={newNoteTitle}
+            onChange={(e) => setNewNoteTitle(e.target.value)}
+            disabled={createNoteMutation.isPending}
+            variant="outlined"
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                bgcolor: "rgba(255,255,255,0.1)",
+                borderRadius: 2,
+                "& fieldset": {
+                  borderColor: "rgba(255,255,255,0.2)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#ffd54f",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#ffd54f",
+                },
+              },
+              "& .MuiInputBase-input": {
+                color: "#fff",
+                fontWeight: 500,
+                "&::placeholder": {
+                  color: "rgba(255,255,255,0.6)",
+                  opacity: 1,
+                },
+              },
+              "& .MuiInputLabel-root": {
+                color: "rgba(255,255,255,0.7)",
+                "&.Mui-focused": {
+                  color: "#ffd54f",
+                },
+              },
+            }}
+          />
+          {/* <TextField
+            margin="dense"
             label="Note content"
             fullWidth
             multiline
@@ -887,7 +934,7 @@ export default function SessionPage() {
                 },
               },
             }}
-          />
+          /> */}
         </DialogContent>
         <DialogActions
           sx={{
@@ -919,7 +966,10 @@ export default function SessionPage() {
           <Button
             onClick={handleCreateNote}
             variant="contained"
-            disabled={createNoteMutation.isPending || !newNoteContent.trim()}
+            disabled={
+              createNoteMutation.isPending ||
+              !newNoteTitle.trim() 
+            }
             sx={{
               fontWeight: 700,
               borderRadius: 2,
